@@ -1,4 +1,4 @@
-module recommendation-system
+module github.com/guanguoyintao/luban
 
 go 1.24
 

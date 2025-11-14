@@ -26,12 +26,21 @@ recommendation-system/
 │   │   ├── dto.go              # 数据传输对象
 │   │   ├── presenter.go        # 推荐服务实现
 │   │   └── presenter_interface.go # 推荐服务接口
-│   ├── datacollection/          # 数据收集层
+│   ├── datacollection/          # 数据收集层（工厂+适配器模式）
 │   │   ├── datacollector.go    # 数据收集器实现
-│   │   └── datacollector_interface.go # 数据收集器接口
-│   ├── dataprocessing/          # 数据处理层
+│   │   ├── datacollector_interface.go # 数据收集器接口
+│   │   └── datasource/         # 数据源适配器
+│   │       ├── interfaces.go   # 数据源接口定义
+│   │       ├── factory.go      # 数据源工厂
+│   │       ├── memory.go       # 内存数据源实现
+│   │       └── multi.go        # 多数据源适配器（多路召回）
+│   ├── dataprocessing/          # 数据处理层（责任链模式）
 │   │   ├── dataprocessor.go    # 数据处理器实现
-│   │   └── dataprocessor_interface.go # 数据处理器接口
+│   │   ├── dataprocessor_interface.go # 数据处理器接口
+│   │   └── chain/              # 责任链模式
+│   │       ├── chain.go        # 责任链框架
+│   │       ├── processors.go   # 具体处理器实现
+│   │       └── builder.go      # 责任链构建器
 │   ├── domain/                  # 领域层（核心业务逻辑）
 │   │   ├── entity.go           # 领域实体
 │   │   └── repository.go       # 仓储接口
@@ -47,7 +56,7 @@ recommendation-system/
 │   │   │   └── wire_gen.go     # Wire生成的代码
 │   │   └── error/              # 错误处理框架
 │   │       └── error.go        # 错误处理实现
-│   └── recommendation/          # 推荐引擎
+│   └── recommendation/          # 推荐引擎（策略模式）
 │       ├── algorithms/          # 推荐算法
 │       │   ├── collaborativefiltering.go # 协同过滤算法
 │       │   ├── contentbasedfiltering.go  # 基于内容过滤算法
@@ -56,18 +65,13 @@ recommendation-system/
 │       │   ├── item.go           # 物品模型
 │       │   ├── recommendation.go # 推荐模型
 │       │   └── user.go           # 用户模型
+│       ├── strategy/            # 排序策略模式
+│       │   ├── strategy.go     # 排序策略接口和实现
+│       │   └── builder.go      # 策略构建器
 │       ├── engine.go             # 推荐引擎管理器
 │       ├── engine_interface.go   # 推荐引擎接口
 │       └── simple_engine.go      # 简单推荐引擎实现
 ├── pkg/                         # 可复用的包
-│   ├── algorithm/               # 算法包
-│   │   ├── chain/              # 责任链模式
-│   │   │   └── chain.go        # 责任链实现
-│   │   └── strategy/           # 策略模式
-│   │       └── strategy.go     # 策略模式实现
-│   ├── datasource/              # 数据源适配器
-│   │   ├── adapter.go          # 数据源适配器接口
-│   │   └── factory.go          # 数据源工厂
 │   └── plugin/                  # 插件系统
 │       ├── examples.go         # 插件示例
 │       ├── manager.go          # 插件管理器
@@ -139,10 +143,10 @@ make help
 ### 2. 设计模式实现
 - **防腐层(ACL)**：隔离外部系统变化对核心业务的影响
 - **依赖注入(DI)**：使用Google Wire框架，实现依赖倒置
-- **工厂模式**：统一管理对象创建，支持多种数据源
-- **策略模式**：算法策略可动态切换
-- **责任链模式**：处理流程可配置
-- **适配器模式**：统一不同数据源接口
+- **工厂模式**：`datacollection/datasource/factory.go` - 统一管理对象创建，支持多种数据源
+- **适配器模式**：`datacollection/datasource/` - 统一不同数据源接口，支持多路召回
+- **策略模式**：`recommendation/strategy/` - 推荐排序策略可动态切换
+- **责任链模式**：`dataprocessing/chain/` - 数据处理流程可配置，用于数据清洗、特征提取
 
 ### 3. 企业级特性
 - **配置管理**：支持多环境配置，使用Viper管理
@@ -240,14 +244,26 @@ for _, rec := range recommendations {
 ### 添加新的推荐算法
 
 1. 在 `internal/recommendation/algorithms/` 中实现新的算法引擎
-2. 在 `pkg/algorithm/strategy/` 中实现策略模式
+2. 在 `internal/recommendation/strategy/` 中实现策略模式
 3. 更新Wire依赖注入配置 `internal/infra/di/wire.go`
 
 ### 添加新的数据源
 
-1. 实现 `datasource.DataSource` 接口
-2. 在数据源工厂 `pkg/datasource/factory.go` 中注册新的数据源
+1. 实现 `datasource.DataSource` 接口（`internal/datacollection/datasource/interfaces.go`）
+2. 在数据源工厂 `internal/datacollection/datasource/factory.go` 中注册新的数据源创建器
 3. 配置数据源参数
+
+### 添加新的排序策略
+
+1. 实现 `strategy.RankingStrategy` 接口（`internal/recommendation/strategy/strategy.go`）
+2. 在策略构建器中添加新的策略选项
+3. 更新Wire依赖注入配置
+
+### 添加新的数据处理处理器
+
+1. 实现 `chain.DataProcessor` 接口（`internal/dataprocessing/chain/chain.go`）
+2. 在责任链构建器中添加新的处理器选项
+3. 更新Wire依赖注入配置
 
 ### 添加插件
 
@@ -281,5 +297,11 @@ for _, rec := range recommendations {
 - **防腐层设计** - 有效隔离外部系统变化
 - **插件化架构** - 支持运行时动态扩展
 - **配置化管理** - 支持多环境和热更新
+
+### 设计模式正确应用
+- **责任链模式** - 应用于`dataprocessing/chain/`，用于数据清洗、验证、特征提取等流程
+- **策略模式** - 应用于`recommendation/strategy/`，用于推荐结果的不同排序策略
+- **工厂模式** - 应用于`datacollection/datasource/factory.go`，统一管理数据源创建
+- **适配器模式** - 应用于`datacollection/datasource/`，统一不同数据源接口，支持多路召回
 
 这个框架可以作为构建大规模推荐系统的基础，帮助企业快速搭建稳定、高效的推荐服务。
