@@ -6,7 +6,7 @@ import (
 	"context"
 	"sort"
 	
-	"recommendation-system/internal/domain"
+	"github.com/guanguoyintao/luban/internal/domain"
 )
 
 // RankingStrategy 排序策略接口

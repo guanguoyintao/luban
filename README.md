@@ -17,7 +17,7 @@
 ### 分层架构
 
 ```
-recommendation-system/
+github.com/guanguoyintao/luban/
 ├── cmd/                          # 应用程序入口
 │   ├── main.go                  # 主程序入口
 │   └── test.go                  # 测试程序

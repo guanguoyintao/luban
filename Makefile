@@ -7,7 +7,7 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 GOMOD=$(GOCMD) mod
-BINARY_NAME=recommendation-system
+BINARY_NAME=github.com/guanguoyintao/luban
 BINARY_UNIX=$(BINARY_NAME)_unix
 MAIN_PATH=cmd/main.go
 

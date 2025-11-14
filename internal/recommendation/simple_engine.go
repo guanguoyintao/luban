@@ -3,12 +3,12 @@ package recommendation
 import (
 	"context"
 	"time"
-	
+
 	"github.com/sirupsen/logrus"
-	
-	"recommendation-system/internal/datacollection"
-	"recommendation-system/internal/dataprocessing"
-	"recommendation-system/internal/domain"
+
+	"github.com/guanguoyintao/luban/internal/datacollection"
+	"github.com/guanguoyintao/luban/internal/dataprocessing"
+	"github.com/guanguoyintao/luban/internal/domain"
 )
 
 // SimpleRecommendationEngine 简单推荐引擎实现
@@ -40,7 +40,7 @@ func (e *SimpleRecommendationEngine) GetRecommendations(ctx context.Context, use
 		"user_id": userID,
 		"count":   count,
 	}).Info("开始生成推荐")
-	
+
 	// 创建用户数据
 	userData := datacollection.UserData{
 		UserID: userID,
@@ -52,7 +52,7 @@ func (e *SimpleRecommendationEngine) GetRecommendations(ctx context.Context, use
 			"categories": []string{"technology", "sports"},
 		},
 	}
-	
+
 	// 处理用户数据
 	processedData, err := e.dataProcessor.CleanUserData(ctx, userData)
 	if err != nil {
@@ -60,9 +60,9 @@ func (e *SimpleRecommendationEngine) GetRecommendations(ctx context.Context, use
 		// 即使处理失败，我们也可以返回模拟推荐
 		e.logger.Info("使用默认推荐数据")
 	}
-	
+
 	_ = processedData // 使用处理后的数据
-	
+
 	// 模拟推荐结果
 	recommendations := []domain.Recommendation{
 		{
@@ -93,17 +93,17 @@ func (e *SimpleRecommendationEngine) GetRecommendations(ctx context.Context, use
 			Category:   "technology",
 		},
 	}
-	
+
 	// 限制推荐数量
 	if count > 0 && count < len(recommendations) {
 		recommendations = recommendations[:count]
 	}
-	
+
 	e.logger.WithFields(logrus.Fields{
 		"user_id":         userID,
 		"recommendations": len(recommendations),
 	}).Info("推荐生成成功")
-	
+
 	return recommendations, nil
 }
 
@@ -114,13 +114,13 @@ func (e *SimpleRecommendationEngine) GetRecommendationsByCategory(ctx context.Co
 		"category": category,
 		"count":    count,
 	}).Info("开始按类别生成推荐")
-	
+
 	// 获取所有推荐
 	recommendations, err := e.GetRecommendations(ctx, userID, count*2) // 获取更多以便筛选
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 按类别筛选
 	var filteredRecommendations []domain.Recommendation
 	for _, rec := range recommendations {
@@ -128,17 +128,17 @@ func (e *SimpleRecommendationEngine) GetRecommendationsByCategory(ctx context.Co
 			filteredRecommendations = append(filteredRecommendations, rec)
 		}
 	}
-	
+
 	// 限制推荐数量
 	if count > 0 && count < len(filteredRecommendations) {
 		filteredRecommendations = filteredRecommendations[:count]
 	}
-	
+
 	e.logger.WithFields(logrus.Fields{
 		"user_id":         userID,
 		"category":        category,
 		"recommendations": len(filteredRecommendations),
 	}).Info("按类别推荐生成成功")
-	
+
 	return filteredRecommendations, nil
 }

@@ -2,7 +2,7 @@
 package chain
 
 import (
-	"recommendation-system/internal/datacollection"
+	"github.com/guanguoyintao/luban/internal/datacollection"
 )
 
 // ChainBuilder 责任链构建器
@@ -108,9 +108,9 @@ func ConvertItemData(item datacollection.ItemData) ItemData {
 // ConvertUserData 转换用户数据类型
 func ConvertUserData(user datacollection.UserData) UserData {
 	return UserData{
-		UserID:        user.UserID,
-		Demographics:  user.Demographics,
-		Preferences:   user.Preferences,
-		Metadata:      user.Metadata,
+		UserID:       user.UserID,
+		Demographics: user.Demographics,
+		Preferences:  user.Preferences,
+		Metadata:     user.Metadata,
 	}
 }

@@ -6,59 +6,59 @@ package di
 import (
 	"github.com/google/wire"
 	"github.com/sirupsen/logrus"
-	
-	"recommendation-system/internal/application"
-	"recommendation-system/internal/datacollection"
-	"recommendation-system/internal/datacollection/datasource"
-	"recommendation-system/internal/dataprocessing"
-	"recommendation-system/internal/dataprocessing/chain"
-	"recommendation-system/internal/domain"
-	"recommendation-system/internal/infra/config"
-	"recommendation-system/internal/recommendation"
-	"recommendation-system/internal/recommendation/strategy"
-	"recommendation-system/pkg/plugin"
+
+	"github.com/guanguoyintao/luban/internal/application"
+	"github.com/guanguoyintao/luban/internal/datacollection"
+	"github.com/guanguoyintao/luban/internal/datacollection/datasource"
+	"github.com/guanguoyintao/luban/internal/dataprocessing"
+	"github.com/guanguoyintao/luban/internal/dataprocessing/chain"
+	"github.com/guanguoyintao/luban/internal/domain"
+	"github.com/guanguoyintao/luban/internal/infra/config"
+	"github.com/guanguoyintao/luban/internal/recommendation"
+	"github.com/guanguoyintao/luban/internal/recommendation/strategy"
+	"github.com/guanguoyintao/luban/pkg/plugin"
 )
 
 // ProviderSet 定义所有依赖提供者
 var ProviderSet = wire.NewSet(
 	// 基础设施层
 	NewLogger,
-	
+
 	// 配置管理
 	config.NewViperConfigManager,
 	wire.Bind(new(config.ConfigManager), new(*config.ViperConfigManager)),
-	
+
 	// 数据收集层 - 工厂和适配器模式
 	NewDataSourceFactory,
 	NewMemoryDataSourceConfig,
 	NewMultiDataSource,
 	wire.Bind(new(datasource.DataSource), new(*datasource.MultiDataSource)),
-	
+
 	// 数据处理层 - 责任链模式
 	dataprocessing.NewMemoryDataProcessor,
 	wire.Bind(new(dataprocessing.DataProcessor), new(*dataprocessing.MemoryDataProcessor)),
-	
+
 	// 责任链构建器
 	NewProcessingChainBuilder,
-	
+
 	// 推荐引擎层 - 策略模式
 	NewRecommendationEngine,
 	wire.Bind(new(domain.RecommendationService), new(*recommendation.SimpleRecommendationEngine)),
-	
+
 	// 排序策略
 	NewRankingStrategies,
-	
+
 	// 责任链
 	NewProcessingChain,
-	
+
 	// 应用服务
 	application.NewRecommendationPresenter,
 	wire.Bind(new(application.RecommendationUseCase), new(*application.RecommendationPresenter)),
-	
+
 	// 插件管理
 	NewPluginManager,
 	wire.Bind(new(plugin.PluginManager), new(*plugin.PluginManager)),
-	
+
 	// 应用程序
 	NewApplication,
 )
@@ -94,7 +94,7 @@ func NewMultiDataSource(factory *datasource.DataSourceFactory, config datasource
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 创建多数据源适配器
 	return datasource.NewMultiDataSource([]datasource.DataSource{memorySource}, logger), nil
 }
@@ -147,13 +147,13 @@ func InitializeApp() (*Application, error) {
 
 // Application 应用程序容器
 type Application struct {
-	ConfigManager      config.ConfigManager
-	DataSourceFactory  *datasource.DataSourceFactory
-	ProcessingChain    *chain.ProcessingChain
-	RankingStrategies  []strategy.RankingStrategy
-	RecommendationSvc  domain.RecommendationService
-	PluginManager      *plugin.PluginManager
-	Logger             *logrus.Logger
+	ConfigManager     config.ConfigManager
+	DataSourceFactory *datasource.DataSourceFactory
+	ProcessingChain   *chain.ProcessingChain
+	RankingStrategies []strategy.RankingStrategy
+	RecommendationSvc domain.RecommendationService
+	PluginManager     *plugin.PluginManager
+	Logger            *logrus.Logger
 }
 
 // NewApplication 创建应用程序

@@ -9,11 +9,11 @@ package di
 import (
 	"github.com/sirupsen/logrus"
 	
-	"recommendation-system/internal/datacollection"
-	"recommendation-system/internal/dataprocessing"
-	"recommendation-system/internal/domain"
-	"recommendation-system/internal/infra/config"
-	"recommendation-system/internal/recommendation"
+	"github.com/guanguoyintao/luban/internal/datacollection"
+	"github.com/guanguoyintao/luban/internal/dataprocessing"
+	"github.com/guanguoyintao/luban/internal/domain"
+	"github.com/guanguoyintao/luban/internal/infra/config"
+	"github.com/guanguoyintao/luban/internal/recommendation"
 )
 
 // NewLogger 创建日志记录器
