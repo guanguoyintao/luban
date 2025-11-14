@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"reflect"
-	"sort"
 	"sync"
 	"time"
 
@@ -435,7 +433,7 @@ func (f *FeatureExtractor) ExtractItemFeatures(item ItemData) ([]float64, error)
 	
 	// 类别特征（简单的哈希编码）
 	categoryHash := float64(hashString(item.Category))
-	features = append(features, float64(categoryHash%1000)/1000.0)
+	features = append(features, float64(int(categoryHash)%1000)/1000.0)
 	
 	// 标题长度特征
 	features = append(features, float64(len(item.Title))/100.0)

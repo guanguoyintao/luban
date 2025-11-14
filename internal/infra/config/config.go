@@ -4,7 +4,6 @@ package config
 import (
 	"bytes"
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/spf13/viper"
